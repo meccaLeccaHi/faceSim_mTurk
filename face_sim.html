@@ -6,12 +6,12 @@
 <style>
 
 #startExperiment {
-  color: rgb(200,200,200);
-  text-decoration: none;
+	color: rgb(200,200,200);
+	text-decoration: none;
 }
 
 #startExperiment:hover {
-  color: white;
+	color: white;
 }
 #startExperimentButton {
 	width: 200px;
@@ -45,6 +45,7 @@
 }
 
 #thanks {
+	display: none;  
 	text-align: center;
 	width: 450px;
 	margin: 0 auto;
@@ -84,11 +85,11 @@
 <input type="radio" class="resp_button" name="question" value="9"> 9 
 <input type="radio" class="resp_button" name="question" value="10"> 10
 
-<input type="hidden" name="trialNum" value="0">
-<input type="hidden" name="trialNum" value="0">
-<input type="hidden" name="face1" value="0">
-<input type="hidden" name="face2" value="0">
-<input type="hidden" name="responses" value="0">
+<input type="hidden" name="trialNum" id="trialNum">
+<input type="hidden" name="facePairNum" id="facePairNum">
+<input type="hidden" name="face1" id="face1">
+<input type="hidden" name="face2" id="face2">
+<input type="hidden" name="responses" id="responses">
 
 </p>
 </div>
@@ -117,35 +118,35 @@ function buttonClicked() {
 	name2[curTrial]=face_nms[face_pair2[shuf_order[curTrial]]];
 	trialNum[curTrial]=curTrial;
 	responses[curTrial]=$("input[type='radio'][name='question']:checked").val(); // Save response in list
+	
+	/* Set values for outputs */
+	$('#trialNum').val(trialNum);
+	$('#facePairNum').val(shuf_order);
+	$('#face1').val(name1);
+	$('#face2').val(name2);
+	$('#responses').val(responses);
 
 	curTrial++; // Iterate trial number
 	
+	console.log(trialNum); // Print trial number
+	console.log(shuf_order); // Print shuffled trial order
 	console.log(name1); // Print name of 1st face in pair to console
 	console.log(name2); // Print name of 2nd face in pair to console
 	console.log(responses); // Print response to console
 			
 	if (curTrial==nTrials) { 
 	
-		$('#trial').hide();
-		$('#instructions').hide();
+		$('#trial').hide(); // Hide trial
+		$('#instructions').hide(); // Hide instructions
 		$('#thanks').show(); // Show 'Thanks!' text
-
-		/* Set values for outputs */
-		$('#trialNum').val(trialNum);
-		$('#facePairNum').val(shuf_order);
-		$('#face1').val(name1);
-		$('#face2').val(name2);
-		$('#responses').val(responses);
-
 		$('#submitButton').show(); // Show 'submit' button
 		
 	} else {
 
-		$("input[type='radio'][name='question']:checked").attr('checked', false); // Reset radio buttons
-		
+		$("input[type='radio'][name='question']:checked").attr('checked',false); // Reset radio buttons
 		$('#impair1').attr("src",face_imgs[face_pair1[shuf_order[curTrial]]]); // Set images for each trial
 		$('#impair2').attr("src",face_imgs[face_pair2[shuf_order[curTrial]]]);
-		$('#trial').show();
+		$('#trial').show(); // Show trial
 	}
 }
 
@@ -153,7 +154,6 @@ function buttonClicked() {
 function showFirstTrial() {
 
 	$('#startExperiment').hide(); // Hide start experiment button
-	
 	$('#impair1').attr("src",face_imgs[face_pair1[shuf_order[curTrial]]]); // Set images for each trial
 	$('#impair2').attr("src",face_imgs[face_pair2[shuf_order[curTrial]]]);
 	$('#trial').show();
@@ -164,8 +164,6 @@ function shuffle(o){
     for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
     return o;
 }
-
-$('#thanks').hide(); // Hide 'Thanks!' text
 
 /* Wait for clicks */
 $('#startExperiment').click(showFirstTrial);
