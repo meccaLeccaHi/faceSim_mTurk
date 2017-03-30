@@ -1,0 +1,173 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+<style>
+
+#instructions {
+  width: 300px;
+  margin: 0 auto;
+  text-align: center;
+  margin-top: 100px;
+}
+
+#startExperiment {
+  color: rgb(200,200,200);
+  text-decoration: none;
+}
+
+#startExperiment:hover {
+  color: white;
+}
+#startExperimentButton {
+	width: 200px;
+	text-align: center;
+	border: 4 px inset gray;
+	background: gray;
+	margin: 0 auto;
+	text-decoration: none;
+}
+
+.trialDiv {
+	border: 1px solid gray;
+	padding: 20px;
+	width: 430px;
+	margin: 0 auto;
+	font-family: Arial;
+	font-size: 14pt;
+	display: none;
+}
+
+#submitButton {
+	display: none;  
+}
+
+#instructions {
+	width: 400px;
+	margin: 50 auto;
+	font-family: Arial;
+	font-size: 12pt;
+}
+</style>
+
+<div id="instructions">
+<p>On a scale of 0 through 10, <br> how similar are these <b>faces</b>?</p>
+<p>[0 = not similar, 10 = very similar]</p>
+</div>
+
+<div id="startExperimentButton">
+<p><a href="#" id="startExperiment">Start Experiment</a></p>
+</div>
+
+<div id="trial" class="trialDiv">
+<p>
+<img id="impair1" width="210">
+<img id="impair2" width="210">
+</p>
+
+<p>
+<input type="radio" class="resp_button" name="question" value="1"> 1 
+<input type="radio" class="resp_button" name="question" value="2"> 2
+<input type="radio" class="resp_button" name="question" value="3"> 3 
+<input type="radio" class="resp_button" name="question" value="4"> 4
+<input type="radio" class="resp_button" name="question" value="5"> 5 
+<input type="radio" class="resp_button" name="question" value="6"> 6
+<input type="radio" class="resp_button" name="question" value="7"> 7 
+<input type="radio" class="resp_button" name="question" value="8"> 8
+<input type="radio" class="resp_button" name="question" value="9"> 9 
+<input type="radio" class="resp_button" name="question" value="10"> 10
+
+<input type="hidden" name="trialNum" value="0">
+<input type="hidden" name="trialNum" value="0">
+<input type="hidden" name="face1" value="0">
+<input type="hidden" name="face2" value="0">
+<input type="hidden" name="responses" value="0">
+
+</p>
+</div>
+
+<script>
+
+/* Create experimental variables */
+var face_nms = ['ArnoldBarney','BarneyDaniel','DanielHillary','DanielShinzo','HillaryShinzo','IanPiers','IanTom','PiersTom'];
+var face_imgs = ['http://i.imgur.com/HFMr5Jp.png','http://i.imgur.com/VoB4Hr1.png','http://i.imgur.com/8afrTze.png','http://i.imgur.com/vvvahSz.png','http://i.imgur.com/xZLTaKf.png','http://i.imgur.com/M1g57XX.png','http://i.imgur.com/XA8A3FR.png','http://i.imgur.com/Jbh4AeB.png'];
+var face_num = 8;
+var nTrials = 28;
+var shuf_order = shuffle(Array.apply(null, {length: nTrials}).map(Number.call, Number));       
+var face_pair1 = [0,0,0,0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,4,4,4,5,5,6];
+var face_pair2 = [1,2,3,4,5,6,7,2,3,4,5,6,7,3,4,5,6,7,4,5,6,7,5,6,7,6,7,7];
+var curTrial = 0;
+
+/* Create an arrays with undefined elements (0's)*/
+var responses = new Array(nTrials).fill(0); 
+var name1 = new Array(nTrials).fill(0); 
+var name2 = new Array(nTrials).fill(0); 
+var trialNum = new Array(nTrials).fill(0); 
+
+function buttonClicked() {
+			
+	curTrial++; // Iterate trial number
+	
+	name1[curTrial]=face_nms[face_pair1[shuf_order[curTrial]]]; // Save face names in list
+	name2[curTrial]=face_nms[face_pair2[shuf_order[curTrial]]];
+	trialNum[curTrial]=curTrial;
+	responses[curTrial]=$("input[type='radio'][name='question']:checked").val(); // Save response in list
+
+	console.log(name1); // Print name of 1st face in pair to console
+	console.log(name2); // Print name of 2nd face in pair to console
+	console.log(responses); // Print response to console
+			
+	if (curTrial > nTrials) { 
+	
+		/* Set values for outputs */
+		$('#trialNum').val(trialNum);
+		$('#facePairNum').val(shuf_order);
+		$('#face1').val(name1);
+		$('#face2').val(name2);
+		$('#responses').val(responses);
+
+		$('#submitButton').show(); // Show 'submit' button
+		
+	} else {
+
+		$('#impair1').attr("src",face_imgs[face_pair1[shuf_order[curTrial]]]); // Set images for each trial
+		$('#impair2').attr("src",face_imgs[face_pair2[shuf_order[curTrial]]]);
+		$('#trial').show();
+		
+		$("input[type='radio'][name='question']:checked").attr('checked', false); // Reset radio buttons
+	}
+}
+
+/* Create buttons & show stimuli for first trial */
+function showFirstTrial() {
+
+	$('#startExperiment').hide(); // Hide start experiment button
+	
+	name1[curTrial]=face_nms[face_pair1[shuf_order[curTrial]]]; // Save face names in list
+	name2[curTrial]=face_nms[face_pair2[shuf_order[curTrial]]];
+	trialNum[curTrial]=curTrial;
+	responses[curTrial]=$("input[type='radio'][name='question']:checked").val(); // Save response in list
+
+	console.log(name1); // Print name of 1st face in pair to console
+	console.log(name2); // Print name of 2nd face in pair to console
+	console.log(responses);
+	
+	$('#impair1').attr("src",face_imgs[face_pair1[shuf_order[curTrial]]]); // Set images for each trial
+	$('#impair2').attr("src",face_imgs[face_pair2[shuf_order[curTrial]]]);
+	$('#trial').show();
+		
+	$("input[type='radio'][name='question']:checked").attr('checked', false); // Reset radio buttons
+}
+
+/* Fisher-Yates shuffle */
+function shuffle(o){
+    for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+    return o;
+}
+
+/* Wait for clicks */
+$('#startExperiment').click(showFirstTrial);
+$('.resp_button').click(buttonClicked);
+
+</script>
+
+<!-- do not put this part on Turk -->
+<input type="submit" id="submitButton">
