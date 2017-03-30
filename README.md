@@ -1,4 +1,4 @@
-# face_sim
+# faceSim_mTurk
 
 ### Face similarity experiment, via Amazon mTurk. 
 
@@ -8,7 +8,7 @@
 
 ######
 
-**face_mds** is an experimental psychology experiment using **HTML**, **CSS** and **Javascript** (with **jQuery**).
+**face_sim** is an experimental psychology experiment using **HTML**, **CSS** and **Javascript** (with **jQuery**).
 Faces are presented in randomized order as pairs, and the subject is instructed to rate their similarity.
  
 Developed largely using the examples provided by [*Mechanical Turk tutorial*](https://bradylab.ucsd.edu/ttt/) by **Timothy Brady** (UCSD)
