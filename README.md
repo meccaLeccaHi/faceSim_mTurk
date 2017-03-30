@@ -1,4 +1,4 @@
-# face_mds
+# face_sim
 
 ### Face similarity experiment, via Amazon mTurk. 
 
