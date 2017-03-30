@@ -5,13 +5,6 @@
 
 <style>
 
-#instructions {
-  width: 300px;
-  margin: 0 auto;
-  text-align: center;
-  margin-top: 100px;
-}
-
 #startExperiment {
   color: rgb(200,200,200);
   text-decoration: none;
@@ -44,16 +37,29 @@
 }
 
 #instructions {
-	width: 400px;
-	margin: 50 auto;
+	text-align: center;
+	width: 250px;
+	margin: 0 auto;
+	font-family: Arial;
+	font-size: 12pt;
+}
+
+#thanks {
+	text-align: center;
+	width: 450px;
+	margin: 0 auto;
 	font-family: Arial;
 	font-size: 12pt;
 }
 </style>
 
 <div id="instructions">
-<p>On a scale of 0 through 10, <br> how similar are these <b>faces</b>?</p>
+<p>On a scale of 0 through 10, <br> how similar are these <b>faces</b>?</i></p>
 <p>[0 = not similar, 10 = very similar]</p>
+</div>
+
+<div id="thanks">
+<p>Thank you for participating.</p>
 </div>
 
 <div id="startExperimentButton">
@@ -107,19 +113,23 @@ var trialNum = new Array(nTrials).fill(0);
 
 function buttonClicked() {
 			
-	curTrial++; // Iterate trial number
-	
 	name1[curTrial]=face_nms[face_pair1[shuf_order[curTrial]]]; // Save face names in list
 	name2[curTrial]=face_nms[face_pair2[shuf_order[curTrial]]];
 	trialNum[curTrial]=curTrial;
 	responses[curTrial]=$("input[type='radio'][name='question']:checked").val(); // Save response in list
 
+	curTrial++; // Iterate trial number
+	
 	console.log(name1); // Print name of 1st face in pair to console
 	console.log(name2); // Print name of 2nd face in pair to console
 	console.log(responses); // Print response to console
 			
-	if (curTrial > nTrials) { 
+	if (curTrial==nTrials) { 
 	
+		$('#trial').hide();
+		$('#instructions').hide();
+		$('#thanks').show(); // Show 'Thanks!' text
+
 		/* Set values for outputs */
 		$('#trialNum').val(trialNum);
 		$('#facePairNum').val(shuf_order);
@@ -131,11 +141,11 @@ function buttonClicked() {
 		
 	} else {
 
+		$("input[type='radio'][name='question']:checked").attr('checked', false); // Reset radio buttons
+		
 		$('#impair1').attr("src",face_imgs[face_pair1[shuf_order[curTrial]]]); // Set images for each trial
 		$('#impair2').attr("src",face_imgs[face_pair2[shuf_order[curTrial]]]);
 		$('#trial').show();
-		
-		$("input[type='radio'][name='question']:checked").attr('checked', false); // Reset radio buttons
 	}
 }
 
@@ -144,20 +154,9 @@ function showFirstTrial() {
 
 	$('#startExperiment').hide(); // Hide start experiment button
 	
-	name1[curTrial]=face_nms[face_pair1[shuf_order[curTrial]]]; // Save face names in list
-	name2[curTrial]=face_nms[face_pair2[shuf_order[curTrial]]];
-	trialNum[curTrial]=curTrial;
-	responses[curTrial]=$("input[type='radio'][name='question']:checked").val(); // Save response in list
-
-	console.log(name1); // Print name of 1st face in pair to console
-	console.log(name2); // Print name of 2nd face in pair to console
-	console.log(responses);
-	
 	$('#impair1').attr("src",face_imgs[face_pair1[shuf_order[curTrial]]]); // Set images for each trial
 	$('#impair2').attr("src",face_imgs[face_pair2[shuf_order[curTrial]]]);
 	$('#trial').show();
-		
-	$("input[type='radio'][name='question']:checked").attr('checked', false); // Reset radio buttons
 }
 
 /* Fisher-Yates shuffle */
@@ -165,6 +164,8 @@ function shuffle(o){
     for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
     return o;
 }
+
+$('#thanks').hide(); // Hide 'Thanks!' text
 
 /* Wait for clicks */
 $('#startExperiment').click(showFirstTrial);
