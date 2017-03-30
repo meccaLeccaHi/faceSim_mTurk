@@ -3,7 +3,7 @@
 ### Face similarity experiment, via Amazon mTurk. 
 
 <kbd>
-  <img src="http://i.imgur.com/brZ4sXY.png">
+  <img src="http://i.imgur.com/FbySiuK.png?1">
 </kbd>
 
 ######
