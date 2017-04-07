@@ -86,20 +86,26 @@ w = xh-xl
 h = yh-yl
 size = w/len(FNAMES)
 
+crop_size = 20
+
 for i,x in enumerate(FACE_URL):
     
     xp = xl+(size*i)
     
+    # Load image using URL
     file = cStringIO.StringIO(urllib.urlopen(x).read())
     face_img = Image.open(file)
 
-    ax1=fig.add_axes([xp, yh-0.01, size, size]) # xl+(size*.79)*3
+    # Crop image edges
+    face_img = face_img.crop((crop_size,crop_size,face_img.size[0]-crop_size,face_img.size[1]-crop_size))
+
+    ax1=fig.add_axes([xp, yh-0.01, size, size])
     ax1.axison = False
     imgplot = ax1.imshow(face_img)
 
     yp = yl+(size*i)
 
-    ax2=fig.add_axes([xl-size-0.01, yp+0.02, size, size]) # xl+(size*.79)*3
+    ax2=fig.add_axes([xl-size-0.01, yp+0.02, size, size])
     ax2.axison = False
     imgplot = ax2.imshow(face_img)
 
