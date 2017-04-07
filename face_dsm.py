@@ -5,13 +5,14 @@ Created on Thu Apr  6 12:24:05 2017
 @author: lab
 """
 
-import xlrd
+import xlrd, os, urllib, cStringIO
 import numpy as np
 import pylab as plt
-import urllib, cStringIO
 from PIL import Image
 
 
+# Define path to git repo
+main_dir=os.environ['HOME']+"/Cloud2/movies/human/turk/face_sim/"
 
 FNAMES = ['ArnoldBarney','BarneyDaniel','DanielHillary','DanielShinzo','HillaryShinzo','IanPiers','IanTom','PiersTom'];      
 FPAIR1 = [0,0,0,0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,4,4,4,5,5,6];
@@ -20,7 +21,7 @@ FPAIR2 = [1,2,3,4,5,6,7,2,3,4,5,6,7,3,4,5,6,7,4,5,6,7,5,6,7,6,7,7];
 FACE_URL = ['http://i.imgur.com/HFMr5Jp.png','http://i.imgur.com/VoB4Hr1.png','http://i.imgur.com/8afrTze.png','http://i.imgur.com/vvvahSz.png','http://i.imgur.com/xZLTaKf.png','http://i.imgur.com/M1g57XX.png','http://i.imgur.com/XA8A3FR.png','http://i.imgur.com/Jbh4AeB.png'];
 
 # import data
-workbook = xlrd.open_workbook('/home/lab/Cloud2/movies/human/turk/face_sim/results/test_batch.xlsx');
+workbook = xlrd.open_workbook(main_dir+'results/test_batch.xlsx');
 sheet = workbook.sheet_by_index(0)
 
 # Allocate imported worksheet to column variable names
@@ -29,9 +30,6 @@ Answerface2 = sheet.col_values(1)
 AnswerfacePairNum = sheet.col_values(2)
 Answerresponses = sheet.col_values(3)
 AnswertrialNum = sheet.col_values(4)
-
-# Pre-allocate similarity matrix
-resp_mat = np.zeros(shape=(len(FNAMES),len(FNAMES)))
 
 def normResp(hit_num):
     """De-randomize, normalize, and concatenate responses for each HIT"""
@@ -52,18 +50,23 @@ def normResp(hit_num):
 # Loop through HITS, concatenate response vector from each
 cat_resp = np.array([normResp(n) for n in range(1,len(Answerface1))])
 
-fig, ax = plt.subplots(1, figsize=(10,10), facecolor='black')
+fig, ax = plt.subplots(1, figsize=(5,30), facecolor='white')
 
+plt.subplot(111)
+plt.imshow(cat_resp,interpolation='none',cmap='hot')
+plt.xlabel('face-pair')
+plt.ylabel('HIT')
+plt.title('normalized responses')
+plt.colorbar()
+plt.show()
 
-#fig = plt.figure()
-#ax = plt.subplot(111)
-
-##im = plt.imshow(mean_resp,interpolation='bilinear',origin='lower',extent=(-3,3,-3,3))
-#im = plt.imshow(cat_resp,interpolation='none',cmap='hot')
-#plt.colorbar(im, orientation='horizontal')
+fig.savefig(main_dir+'results/norm_resps.png', facecolor=fig.get_facecolor(), edgecolor='none')
 
 # Calc mean response
 mean_resp = cat_resp.mean(axis=0)
+
+# Pre-allocate similarity matrix
+resp_mat = np.ones(shape=(len(FNAMES),len(FNAMES)))*min(mean_resp)
 
 # Loop through face-pairs
 for i in range(FPAIR1[-1]+1):
@@ -76,7 +79,7 @@ for i in range(FPAIR1[-1]+1):
             resp_mat[ii,i] = mean_resp[x]
 #            print((ii,i))
 
-#ax = plt.subplot(212)
+fig, ax = plt.subplots(1, figsize=(10,10), facecolor='black')
 
 axS = ax.matshow(resp_mat,cmap='hot',extent=[1,len(FNAMES)+1,1,len(FNAMES)+1],aspect=1)
 ax.axison = False
@@ -112,7 +115,7 @@ for i,x in enumerate(FACE_URL):
 
 plt.show()
 
-# fig.savefig('whatever.png', facecolor=fig.get_facecolor(), edgecolor='none')
+fig.savefig(main_dir+'results/face_dsm.png', facecolor=fig.get_facecolor(), edgecolor='none')
 
 pass
 
