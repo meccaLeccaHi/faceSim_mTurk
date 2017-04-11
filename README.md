@@ -16,9 +16,11 @@ Developed largely using the examples provided by [*Mechanical Turk tutorial*](ht
 -**face_dsm.py** is a **Python** analysis script. <br>
 Responses of mTurk workers are shown first in their raw form (<i>left panel</i>),
 then in the form of a similarity matrix (<i>middle panel</i>),
-and finally following classical multidimensional scaling<sup>1</sup> (<i>right panel</i>).
-<img src="http://i.imgur.com/C2mwl2f.png">
- 
+and finally following classical multidimensional scaling<sup>1</sup> (<i>right panel</i>). <br>
+<kbd>
+   <img src="http://i.imgur.com/C2mwl2f.png">
+</kbd>
+
 <sup>1</sup>Classical MDS [example](http://www.nervouscomputer.com/hfs/cmdscale-in-python/) provided by *Francis Song* (NYU)
 
 **Created by Dr Adam Jones  
