@@ -14,7 +14,7 @@ Faces are presented in randomized order as pairs, and the subject is instructed 
 -**face_dsm.py** is a **Python** analysis script. <br>
 Responses of mTurk workers are shown first in their raw form (<i>left panel</i>),
 then in the form of a similarity matrix (<i>middle panel</i>),
-and finally following classical multidimensional scaling<sup>2</sup> (<i>right panel</i>). <br>
+and finally following classical multidimensional scaling<sup>2</sup> (<i>right panel</i>). <br> <br>
 <kbd>
    <img src="http://i.imgur.com/C2mwl2f.png">
 </kbd>
