@@ -19,7 +19,7 @@ and finally following classical multidimensional scaling<sup>2</sup> (<i>right p
    <img src="http://i.imgur.com/C2mwl2f.png">
 </kbd>
 
-<sup>1</sup>Examples provided by [*Mechanical Turk tutorial*](https://bradylab.ucsd.edu/ttt/) by **Timothy Brady** (UCSD) <br>
+<sup>1</sup>Examples provided by [*Mechanical Turk tutorial*](https://bradylab.ucsd.edu/ttt/) by *Timothy Brady* (UCSD) <br>
 <sup>2</sup>Classical MDS [example](http://www.nervouscomputer.com/hfs/cmdscale-in-python/) provided by *Francis Song* (NYU)
 
 **Created by Dr Adam Jones  
