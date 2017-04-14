@@ -211,7 +211,7 @@ def plot_mds(config_vals,eigen_vals,FNAMES,MAIN_DIR,label,savename):
         imscatter(config_vals[i,0],config_vals[i,1],face_img,zoom=0.5,ax=ax)
 
         # Add face-names to each point
-        plt.annotate(FNAMES[i],(config_vals[i,0]+config_vals.max()/10,config_vals[i,1]))
+        plt.annotate(FNAMES[i],(config_vals[i,0]+config_vals.max()/8,config_vals[i,1]))
 
     temp_xlim = ax.get_xlim()
     temp_ylim = ax.get_ylim()
@@ -262,7 +262,6 @@ def imscatter(x, y, image, ax=None, zoom=1):
         artists.append(ax.add_artist(ab))
     ax.update_datalim(np.column_stack([x, y]))
     ax.autoscale()
-    return artists
 
 main()
 
