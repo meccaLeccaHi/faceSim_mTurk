@@ -124,7 +124,9 @@ def reshape_dsm(mean_resp,FNAMES,FPAIR1):
         pair_indices = [j for j,x in enumerate(FPAIR1) if x==i]
     
         for ii,x in enumerate(pair_indices):
-                resp_mat[ii,i] = mean_resp[x]
+                print((ii,i))
+                resp_mat[FPAIR1[-1]+1-ii,i] = mean_resp[x]
+                resp_mat[i,FPAIR1[-1]+1-ii] = mean_resp[x]
                 
     return resp_mat
     
@@ -162,7 +164,7 @@ def plot_dsm(resp_mat,FNAMES,FACE_URL,MAIN_DIR,label,savename):
         ax1.imshow(face_img)
     
         # Plot on y-axis
-        ax2=fig.add_axes([xl-size-0.01, yp+0.02, size, size])
+        ax2=fig.add_axes([xl-size-0.01, yh-yp, size, size])
         ax2.axison = False
         ax2.imshow(face_img)
     
