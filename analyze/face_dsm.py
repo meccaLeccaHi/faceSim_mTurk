@@ -80,17 +80,6 @@ def plot_resps(cat_resp,main_dir,label,savename):
     fig.savefig(main_dir+'results/'+savename+'.png',dpi=120,facecolor=fig.get_facecolor(),edgecolor='none')
     plt.close(fig)
     
-# Loop through HITS, concatenate response vector from each
-norm_cat_resp = np.array([normResp(n) for n in range(1,len(Answerface1))])
-rank_cat_resp = np.array([rankResp(n) for n in range(1,len(Answerface1))])
-
-# Plot responses
-plot_resps(norm_cat_resp,main_dir,'normalized responses','norm_resps')
-plot_resps(rank_cat_resp,main_dir,'ranked responses','rank_resps')
-
-# Calculate mean response
-mean_resp = norm_cat_resp.mean(axis=0)
-
 def reshape_dsm(mean_resp,FNAMES,FPAIR1):
     """ Reshape response vector into dis-similarity matrix """
     
@@ -108,9 +97,6 @@ def reshape_dsm(mean_resp,FNAMES,FPAIR1):
                 
     return resp_mat
     
-resp_mat = reshape_dsm(mean_resp,FNAMES,FPAIR1)
-
-
 def plot_dsm(resp_mat,FNAMES,FACE_URL,main_dir,label,savename):
     """ Plot dis-similarity matrix with faces as tick-labels """
     
@@ -158,30 +144,20 @@ def plot_dsm(resp_mat,FNAMES,FACE_URL,main_dir,label,savename):
     ax1.set_xlabel('mean similarity ('+label+')',color='white')
     ax1.set_xticks((0,100))
     ax1.set_yticks([])
-    temp_lims = (round(min(mean_resp)*1000)/1000,round(max(mean_resp)*1000)/1000)
+    temp_lims = (round(resp_mat.min()*1000)/1000,round(resp_mat.max()*1000)/1000)
     ax1.set_xticklabels(temp_lims,color='white')
     
     fig.savefig(main_dir+'results/'+savename+'.png',dpi=200,facecolor=fig.get_facecolor(), edgecolor='none')
     plt.close(fig)
     
-
-plot_dsm(resp_mat,FNAMES,FACE_URL,main_dir,'normalized','norm_dsm')
-
-# Calc dis-similarity matrix
-dsm = 1-resp_mat
-# Classical multidimensional scaling
-Y,e = cmdscale(dsm)
-# Keep only first and second dimensions (Eigenvalues)
-scaled_coords = Y[:,0:2]
-
-def plot_mds(Y,e,FNAMES,main_dir):
+def plot_mds(config_vals,eigen_vals,FNAMES,main_dir,label,savename):
     """ Plot faces based on first 2 dimensions of configuration matrix """
     
     fig = plt.figure(figsize=(7,10))
     ax = plt.subplot(211)
-    plt.scatter(Y[:,0],Y[:,1])
+    plt.scatter(config_vals[:,0],config_vals[:,1])
     for i,txt in enumerate(FNAMES):
-        plt.annotate(txt,(Y[i,0],Y[i,1]))
+        plt.annotate(txt,(config_vals[i,0],config_vals[i,1]))
 
     temp_xlim = ax.get_xlim()
     temp_ylim = ax.get_ylim()
@@ -192,20 +168,55 @@ def plot_mds(Y,e,FNAMES,main_dir):
     ax.set_ylim(temp_ylim)
     ax.set_xlabel('1st dim. of configuration matrix')
     ax.set_ylabel('2nd dim. of configuration matrix')
-    ax.set_title('separation with classical MDS')
+    ax.set_title('separation of '+label+' responses with classical MDS')
 
     ax = plt.subplot(212)
-    ax.plot(e,color='blue')
+    ax.plot(eigen_vals,color='blue')
     temp_xlim = ax.get_xlim()
     ax.plot(temp_xlim,[0,0],color='black')
     ax.set_xlim(temp_xlim)
     ax.set_xlabel('dimension')
     ax.set_ylabel('eigenvalue')
     
-    fig.savefig(main_dir+'results/face_mds.png',facecolor='white',edgecolor='none')
+    fig.savefig(main_dir+'results/'+savename+'.png',facecolor='white',edgecolor='none')
     plt.close(fig)
 
-plot_mds(Y,e,FNAMES,main_dir)
+# Loop through HITS, concatenate response vector from each
+norm_cat_resp = np.array([normResp(n) for n in range(1,len(Answerface1))])
+rank_cat_resp = np.array([rankResp(n) for n in range(1,len(Answerface1))])
+
+
+# Plot responses
+plot_resps(norm_cat_resp,main_dir,'normalized responses','norm_resps')
+plot_resps(rank_cat_resp,main_dir,'ranked responses','rank_resps')
+
+
+# Calculate mean response
+norm_mean_resp = norm_cat_resp.mean(axis=0)
+rank_mean_resp = rank_cat_resp.mean(axis=0)
+
+# Reshape mean responses into similarity matrix
+norm_resp_mat = reshape_dsm(norm_mean_resp,FNAMES,FPAIR1)
+rank_resp_mat = reshape_dsm(rank_mean_resp,FNAMES,FPAIR1)
+
+# Plot similarity matrix
+plot_dsm(norm_resp_mat,FNAMES,FACE_URL,main_dir,'normalized','norm_dsm')
+plot_dsm(rank_resp_mat,FNAMES,FACE_URL,main_dir,'ranked','rank_dsm')
+
+# Calc dis-similarity matrix
+norm_dsm = 1-norm_resp_mat
+rank_dsm = 1-rank_resp_mat
+
+# Classical multidimensional scaling
+norm_config_vals,norm_eigvals = cmdscale(norm_dsm)
+rank_config_vals,rank_eigvals = cmdscale(rank_dsm)
+
+## Keep only first and second dimensions (Eigenvalues) for x- and y-axes
+#scaled_coords = norm_config_vals[:,0:2]
+
+# Plot MDS results
+plot_mds(norm_config_vals,norm_eigvals,FNAMES,main_dir,'normalized','norm_mds')
+plot_mds(rank_config_vals,rank_eigvals,FNAMES,main_dir,'ranked','rank_mds')
 
 pass
 
