@@ -16,27 +16,24 @@ from cmdscale import cmdscale
 # Define path to git repo
 MAIN_DIR = os.environ['HOME']+"/Cloud2/movies/human/turk/face_sim/"
 
-FNAMES = ['ArnoldBarney','BarneyDaniel','DanielHillary','DanielShinzo','HillaryShinzo','IanPiers','IanTom','PiersTom'];      
-FPAIR1 = [0,0,0,0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,4,4,4,5,5,6];
-FPAIR2 = [1,2,3,4,5,6,7,2,3,4,5,6,7,3,4,5,6,7,4,5,6,7,5,6,7,6,7,7];
+FNAMES = ['ArnoldBarney','BarneyDaniel','DanielHillary','DanielShinzo','HillaryShinzo','IanPiers','IanTom','PiersTom']   
+FPAIR1 = [0,0,0,0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,4,4,4,5,5,6]
+FPAIR2 = [1,2,3,4,5,6,7,2,3,4,5,6,7,3,4,5,6,7,4,5,6,7,5,6,7,6,7,7]
 
-FACE_URL = ['http://i.imgur.com/HFMr5Jp.png','http://i.imgur.com/VoB4Hr1.png','http://i.imgur.com/8afrTze.png','http://i.imgur.com/vvvahSz.png','http://i.imgur.com/xZLTaKf.png','http://i.imgur.com/M1g57XX.png','http://i.imgur.com/XA8A3FR.png','http://i.imgur.com/Jbh4AeB.png'];
+FACE_URL = ['http://i.imgur.com/HFMr5Jp.png','http://i.imgur.com/VoB4Hr1.png','http://i.imgur.com/8afrTze.png','http://i.imgur.com/vvvahSz.png','http://i.imgur.com/xZLTaKf.png','http://i.imgur.com/M1g57XX.png','http://i.imgur.com/XA8A3FR.png','http://i.imgur.com/Jbh4AeB.png']
 
 # import data
-workbook = xlrd.open_workbook(MAIN_DIR+'results/test_batch.xlsx');
+workbook = xlrd.open_workbook(MAIN_DIR+'results/test_batch.xlsx')
 sheet = workbook.sheet_by_index(0)
 
 # Allocate imported worksheet to column variable names
-Answerface1 = sheet.col_values(0)
-Answerface2 = sheet.col_values(1)
-AnswerfacePairNum = sheet.col_values(2)
-Answerresponses = sheet.col_values(3)
-AnswertrialNum = sheet.col_values(4)
+FACE_PAIR = sheet.col_values(2)
+RESPONSES = sheet.col_values(3)
 
 def main():
     # Loop through HITS, concatenate response vector from each
-    norm_cat_resp = np.array([normResp(n) for n in range(1,len(Answerface1))])
-    rank_cat_resp = np.array([rankResp(n) for n in range(1,len(Answerface1))])
+    norm_cat_resp = np.array([normResp(n) for n in range(1,len(FACE_PAIR))])
+    rank_cat_resp = np.array([rankResp(n) for n in range(1,len(FACE_PAIR))])
     
     # Plot responses
     plot_resps(norm_cat_resp,MAIN_DIR,'normalized responses','norm_resps')
@@ -62,9 +59,6 @@ def main():
     norm_config_vals,norm_eigvals = cmdscale(norm_dsm)
     rank_config_vals,rank_eigvals = cmdscale(rank_dsm)
     
-    ## Keep only first and second dimensions (Eigenvalues) for x- and y-axes
-    #scaled_coords = norm_config_vals[:,0:2]
-    
     # Plot MDS results
     plot_mds(norm_config_vals,norm_eigvals,FNAMES,MAIN_DIR,'normalized','norm_mds')
     plot_mds(rank_config_vals,rank_eigvals,FNAMES,MAIN_DIR,'ranked','rank_mds')
@@ -73,8 +67,8 @@ def normResp(hit_num):
     """De-randomize, normalize, and concatenate responses for each HIT"""
     
     # Convert strings to ints
-    responses = np.array(map(int, Answerresponses[hit_num].split(',')))
-    order = np.array(map(int, AnswerfacePairNum[hit_num].split(',')))
+    responses = np.array(map(int, RESPONSES[hit_num].split(',')))
+    order = np.array(map(int, FACE_PAIR[hit_num].split(',')))
 
     # De-randomize
     derand_resp = responses[order]
@@ -89,8 +83,8 @@ def rankResp(hit_num):
     """De-randomize, rank-order, and concatenate responses for each HIT"""
     
     # Convert strings to ints
-    responses = np.array(map(int, Answerresponses[hit_num].split(',')))
-    order = np.array(map(int, AnswerfacePairNum[hit_num].split(',')))
+    responses = np.array(map(int, RESPONSES[hit_num].split(',')))
+    order = np.array(map(int, FACE_PAIR[hit_num].split(',')))
 
     # De-randomize
     derand_resp = responses[order]
