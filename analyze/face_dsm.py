@@ -8,12 +8,13 @@ Created on Thu Apr  6 12:24:05 2017
 import xlrd, os, urllib, cStringIO
 import numpy as np
 import pylab as plt
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from PIL import Image
 from scipy.stats import rankdata
 from cmdscale import cmdscale
 
 # Define path to git repo
-main_dir=os.environ['HOME']+"/Cloud2/movies/human/turk/face_sim/"
+MAIN_DIR = os.environ['HOME']+"/Cloud2/movies/human/turk/face_sim/"
 
 FNAMES = ['ArnoldBarney','BarneyDaniel','DanielHillary','DanielShinzo','HillaryShinzo','IanPiers','IanTom','PiersTom'];      
 FPAIR1 = [0,0,0,0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,4,4,4,5,5,6];
@@ -22,7 +23,7 @@ FPAIR2 = [1,2,3,4,5,6,7,2,3,4,5,6,7,3,4,5,6,7,4,5,6,7,5,6,7,6,7,7];
 FACE_URL = ['http://i.imgur.com/HFMr5Jp.png','http://i.imgur.com/VoB4Hr1.png','http://i.imgur.com/8afrTze.png','http://i.imgur.com/vvvahSz.png','http://i.imgur.com/xZLTaKf.png','http://i.imgur.com/M1g57XX.png','http://i.imgur.com/XA8A3FR.png','http://i.imgur.com/Jbh4AeB.png'];
 
 # import data
-workbook = xlrd.open_workbook(main_dir+'results/test_batch.xlsx');
+workbook = xlrd.open_workbook(MAIN_DIR+'results/test_batch.xlsx');
 sheet = workbook.sheet_by_index(0)
 
 # Allocate imported worksheet to column variable names
@@ -31,6 +32,42 @@ Answerface2 = sheet.col_values(1)
 AnswerfacePairNum = sheet.col_values(2)
 Answerresponses = sheet.col_values(3)
 AnswertrialNum = sheet.col_values(4)
+
+def main():
+    # Loop through HITS, concatenate response vector from each
+    norm_cat_resp = np.array([normResp(n) for n in range(1,len(Answerface1))])
+    rank_cat_resp = np.array([rankResp(n) for n in range(1,len(Answerface1))])
+    
+    # Plot responses
+    plot_resps(norm_cat_resp,MAIN_DIR,'normalized responses','norm_resps')
+    plot_resps(rank_cat_resp,MAIN_DIR,'ranked responses','rank_resps')
+    
+    # Calculate mean response
+    norm_mean_resp = norm_cat_resp.mean(axis=0)
+    rank_mean_resp = rank_cat_resp.mean(axis=0)
+    
+    # Reshape mean responses into similarity matrix
+    norm_resp_mat = reshape_dsm(norm_mean_resp,FNAMES,FPAIR1)
+    rank_resp_mat = reshape_dsm(rank_mean_resp,FNAMES,FPAIR1)
+    
+    # Plot similarity matrix
+    plot_dsm(norm_resp_mat,FNAMES,FACE_URL,MAIN_DIR,'normalized','norm_dsm')
+    plot_dsm(rank_resp_mat,FNAMES,FACE_URL,MAIN_DIR,'ranked','rank_dsm')
+    
+    # Calc dis-similarity matrix
+    norm_dsm = 1-norm_resp_mat
+    rank_dsm = 1-rank_resp_mat
+    
+    # Classical multidimensional scaling
+    norm_config_vals,norm_eigvals = cmdscale(norm_dsm)
+    rank_config_vals,rank_eigvals = cmdscale(rank_dsm)
+    
+    ## Keep only first and second dimensions (Eigenvalues) for x- and y-axes
+    #scaled_coords = norm_config_vals[:,0:2]
+    
+    # Plot MDS results
+    plot_mds(norm_config_vals,norm_eigvals,FNAMES,MAIN_DIR,'normalized','norm_mds')
+    plot_mds(rank_config_vals,rank_eigvals,FNAMES,MAIN_DIR,'ranked','rank_mds')
 
 def normResp(hit_num):
     """De-randomize, normalize, and concatenate responses for each HIT"""
@@ -64,7 +101,7 @@ def rankResp(hit_num):
     
     return rank_resp
 
-def plot_resps(cat_resp,main_dir,label,savename):
+def plot_resps(cat_resp,MAIN_DIR,label,savename):
     """ Plot responses """
     
     fig, ax = plt.subplots(1,figsize=(5,11),facecolor='white')
@@ -77,7 +114,7 @@ def plot_resps(cat_resp,main_dir,label,savename):
     # Since we are normalizing response, we use colorbar range of [0,1]
     plt.colorbar()
 
-    fig.savefig(main_dir+'results/'+savename+'.png',dpi=120,facecolor=fig.get_facecolor(),edgecolor='none')
+    fig.savefig(MAIN_DIR+'results/'+savename+'.png',dpi=120,facecolor=fig.get_facecolor(),edgecolor='none')
     plt.close(fig)
     
 def reshape_dsm(mean_resp,FNAMES,FPAIR1):
@@ -88,7 +125,7 @@ def reshape_dsm(mean_resp,FNAMES,FPAIR1):
 
     # Loop through face-pairs
     for i in range(FPAIR1[-1]+1):
-       
+
         # Search out indices of each instance of current pair
         pair_indices = [j for j,x in enumerate(FPAIR1) if x==i]
     
@@ -97,7 +134,7 @@ def reshape_dsm(mean_resp,FNAMES,FPAIR1):
                 
     return resp_mat
     
-def plot_dsm(resp_mat,FNAMES,FACE_URL,main_dir,label,savename):
+def plot_dsm(resp_mat,FNAMES,FACE_URL,MAIN_DIR,label,savename):
     """ Plot dis-similarity matrix with faces as tick-labels """
     
     fig, ax = plt.subplots(1, figsize=(10,10), facecolor='black')
@@ -147,17 +184,34 @@ def plot_dsm(resp_mat,FNAMES,FACE_URL,main_dir,label,savename):
     temp_lims = (round(resp_mat.min()*1000)/1000,round(resp_mat.max()*1000)/1000)
     ax1.set_xticklabels(temp_lims,color='white')
     
-    fig.savefig(main_dir+'results/'+savename+'.png',dpi=200,facecolor=fig.get_facecolor(), edgecolor='none')
+    fig.savefig(MAIN_DIR+'results/'+savename+'.png',dpi=200,facecolor=fig.get_facecolor(), edgecolor='none')
     plt.close(fig)
     
-def plot_mds(config_vals,eigen_vals,FNAMES,main_dir,label,savename):
+def plot_mds(config_vals,eigen_vals,FNAMES,MAIN_DIR,label,savename):
     """ Plot faces based on first 2 dimensions of configuration matrix """
     
     fig = plt.figure(figsize=(7,10))
     ax = plt.subplot(211)
-    plt.scatter(config_vals[:,0],config_vals[:,1])
-    for i,txt in enumerate(FNAMES):
-        plt.annotate(txt,(config_vals[i,0],config_vals[i,1]))
+    
+    crop_size = 20
+
+    # Loop through face images
+    for i,x in enumerate(FACE_URL):
+
+        plt.scatter(config_vals[i,0],config_vals[i,1])
+    
+        # Load image using URL
+        file = cStringIO.StringIO(urllib.urlopen(x).read())
+        face_img = Image.open(file)
+    
+        # Crop image edges
+        face_img = face_img.crop((crop_size,crop_size,face_img.size[0]-crop_size,face_img.size[1]-crop_size))
+    
+        # Plot images as points
+        imscatter(config_vals[i,0],config_vals[i,1],face_img,zoom=0.5,ax=ax)
+
+        # Add face-names to each point
+        plt.annotate(FNAMES[i],(config_vals[i,0]+config_vals.max()/10,config_vals[i,1]))
 
     temp_xlim = ax.get_xlim()
     temp_ylim = ax.get_ylim()
@@ -170,6 +224,7 @@ def plot_mds(config_vals,eigen_vals,FNAMES,main_dir,label,savename):
     ax.set_ylabel('2nd dim. of configuration matrix')
     ax.set_title('separation of '+label+' responses with classical MDS')
 
+    # Plot eigenvalues
     ax = plt.subplot(212)
     ax.plot(eigen_vals,color='blue')
     temp_xlim = ax.get_xlim()
@@ -178,47 +233,37 @@ def plot_mds(config_vals,eigen_vals,FNAMES,main_dir,label,savename):
     ax.set_xlabel('dimension')
     ax.set_ylabel('eigenvalue')
     
-    fig.savefig(main_dir+'results/'+savename+'.png',facecolor='white',edgecolor='none')
+    # Save plot to figure and close
+    fig.savefig(MAIN_DIR+'results/'+savename+'.png',dpi=200,facecolor='white',edgecolor='none')
     plt.close(fig)
+    
+def imscatter(x, y, image, ax=None, zoom=1):
+    if ax is None:
+        ax = plt.gca()
+        
+    img = image.convert("RGBA")
+    datas = img.getdata()
+    
+    # Convert black pixels to alpha (transparent)
+    newData = []
+    for item in datas:
+        if item[0] < 5 and item[1] < 5 and item[2] < 5:
+            newData.append((0, 0, 0, 0))
+        else:
+            newData.append(item)
+    
+    img.putdata(newData)
 
-# Loop through HITS, concatenate response vector from each
-norm_cat_resp = np.array([normResp(n) for n in range(1,len(Answerface1))])
-rank_cat_resp = np.array([rankResp(n) for n in range(1,len(Answerface1))])
+    im = OffsetImage(img, zoom=zoom)
+    x, y = np.atleast_1d(x, y)
+    artists = []
+    for x0, y0 in zip(x, y):
+        ab = AnnotationBbox(im, (x0, y0), xycoords='data', frameon=False)
+        artists.append(ax.add_artist(ab))
+    ax.update_datalim(np.column_stack([x, y]))
+    ax.autoscale()
+    return artists
 
-
-# Plot responses
-plot_resps(norm_cat_resp,main_dir,'normalized responses','norm_resps')
-plot_resps(rank_cat_resp,main_dir,'ranked responses','rank_resps')
-
-
-# Calculate mean response
-norm_mean_resp = norm_cat_resp.mean(axis=0)
-rank_mean_resp = rank_cat_resp.mean(axis=0)
-
-# Reshape mean responses into similarity matrix
-norm_resp_mat = reshape_dsm(norm_mean_resp,FNAMES,FPAIR1)
-rank_resp_mat = reshape_dsm(rank_mean_resp,FNAMES,FPAIR1)
-
-# Plot similarity matrix
-plot_dsm(norm_resp_mat,FNAMES,FACE_URL,main_dir,'normalized','norm_dsm')
-plot_dsm(rank_resp_mat,FNAMES,FACE_URL,main_dir,'ranked','rank_dsm')
-
-# Calc dis-similarity matrix
-norm_dsm = 1-norm_resp_mat
-rank_dsm = 1-rank_resp_mat
-
-# Classical multidimensional scaling
-norm_config_vals,norm_eigvals = cmdscale(norm_dsm)
-rank_config_vals,rank_eigvals = cmdscale(rank_dsm)
-
-## Keep only first and second dimensions (Eigenvalues) for x- and y-axes
-#scaled_coords = norm_config_vals[:,0:2]
-
-# Plot MDS results
-plot_mds(norm_config_vals,norm_eigvals,FNAMES,main_dir,'normalized','norm_mds')
-plot_mds(rank_config_vals,rank_eigvals,FNAMES,main_dir,'ranked','rank_mds')
-
-pass
-
+main()
 
 
