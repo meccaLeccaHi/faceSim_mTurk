@@ -62,6 +62,30 @@ def main():
     # Plot MDS results
     plot_mds(norm_config_vals,norm_eigvals,FNAMES,MAIN_DIR,'normalized','norm_mds')
     plot_mds(rank_config_vals,rank_eigvals,FNAMES,MAIN_DIR,'ranked','rank_mds')
+    
+    # Create list of image filenames 
+    img_list = [MAIN_DIR+'results/'+x+'.png' for x in ['norm_resps', 'norm_dsm', 'norm_mds']]
+    
+    # Load images into list and collect sizes
+    images = map(Image.open, img_list)
+    widths, heights = zip(*(i.size for i in images))
+    
+    # Create new (scaled) sizes
+    new_height = 800.0
+    new_widths = widths*np.array([new_height/x for x in heights])
+    
+    # Create new image for others to be pasted into
+    new_im = Image.new('RGB', (int(sum(new_widths)), int(new_height)))
+        
+    x_offset = 0
+        
+    for j, im in enumerate(images):
+        # Scale and paste  
+        scaled_im = im.resize((new_widths.astype(int)[j],int(new_height)))
+        new_im.paste(scaled_im, (x_offset,0))
+        x_offset += scaled_im.size[0]
+        
+    new_im.save(MAIN_DIR+'results/summary.png')
 
 def normResp(hit_num):
     """De-randomize, normalize, and concatenate responses for each HIT"""
@@ -124,7 +148,6 @@ def reshape_dsm(mean_resp,FNAMES,FPAIR1):
         pair_indices = [j for j,x in enumerate(FPAIR1) if x==i]
     
         for ii,x in enumerate(pair_indices):
-                print((ii,i))
                 resp_mat[FPAIR1[-1]+1-ii,i] = mean_resp[x]
                 resp_mat[i,FPAIR1[-1]+1-ii] = mean_resp[x]
                 
