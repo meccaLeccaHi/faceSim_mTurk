@@ -16,7 +16,7 @@ Responses of mTurk workers are shown first in their raw form (<i>below, left pan
 then in the form of a similarity matrix (<i>middle panel</i>),
 and finally following classical multidimensional scaling<sup>2</sup> (<i>right panel</i>). <br> <br>
 <kbd>
-   <img src="http://i.imgur.com/SKgWhQn.png">
+   <img src="http://i.imgur.com/RwS4WCk.png">
 </kbd>
 
 <sup>1</sup> Examples provided by [*Mechanical Turk tutorial*](https://bradylab.ucsd.edu/ttt/) by *Timothy Brady* (UCSD) <br>
