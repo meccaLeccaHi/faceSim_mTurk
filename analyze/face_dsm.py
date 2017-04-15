@@ -71,7 +71,7 @@ def main():
     widths, heights = zip(*(i.size for i in images))
     
     # Create new (scaled) sizes
-    new_height = 800.0
+    new_height = 1000.0
     new_widths = widths*np.array([new_height/x for x in heights])
     
     # Create new image for others to be pasted into
@@ -132,7 +132,7 @@ def plot_resps(cat_resp,MAIN_DIR,label,savename):
     # Since we are normalizing response, we use colorbar range of [0,1]
     plt.colorbar()
 
-    fig.savefig(MAIN_DIR+'results/'+savename+'.png',dpi=120,facecolor=fig.get_facecolor(),edgecolor='none')
+    fig.savefig(MAIN_DIR+'results/'+savename+'.png',dpi=150,facecolor=fig.get_facecolor(),edgecolor='none')
     plt.close(fig)
     
 def reshape_dsm(mean_resp,FNAMES,FPAIR1):
